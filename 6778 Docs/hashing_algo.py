@@ -14,7 +14,7 @@ most_zero_string = ''
 begin = time.time()
 
 # while the first 10 characters of the hashed string are not 0000000000
-while hashed_string[:3] != '000':
+while hashed_string[:10] != '0000000000':
 		# generate a random string
 		a_string = 'Anna Liam Nicholas Zachary ' + str(secrets.token_bytes(20))
 		# hash the string
