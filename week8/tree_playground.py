@@ -22,6 +22,3 @@ def preorder(tree, key):
             return tree.get_root_val()
         preorder(tree.get_left_child(), key)
         preorder(tree.get_right_child(), key)
-
-
-# API for crypto trading
