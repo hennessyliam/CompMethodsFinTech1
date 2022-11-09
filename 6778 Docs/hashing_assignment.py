@@ -3,37 +3,37 @@ import hashlib
 
 a_string = ''
 hashed_string = ''
-a_stringWithSixZeros = 'false'
-a_stringWithSevenZeros = 'false'
-a_stringWithEightZeros = 'false'
-a_stringWithNineZeros = 'false'
-a_stringWithTenZeros = 'false'
+a_stringWithSixZeros = False
+a_stringWithSevenZeros = False
+a_stringWithEightZeros = False
+a_stringWithNineZeros = False
+a_stringWithTenZeros = False
 
-while hashed_string[:11] != '00000000':
-	a_string = 'Anna Liam Nick Zach ' + str(secrets.token_bytes(10))
+while hashed_string[:11] != '0000000000':
+	a_string = 'Anna Liam Nicholas Zachary ' + str(secrets.token_bytes(10))
 	hashed_string = hashlib.sha256(a_string.encode('utf-8')).hexdigest()
-	if hashed_string.startswith('000000') and a_stringWithSixZeros == 'false':
-		a_stringWithSixZeros = 'true'
+	if hashed_string.startswith('000000') and a_stringWithSixZeros == False:
+		a_stringWithSixZeros = True
 		print('Six Zeros:')
 		print(a_string)
 		print(hashed_string)
-	if hashed_string.startswith('0000000') and a_stringWithSevenZeros == 'false':
-		a_stringWithSevenZeros = 'true'
+	if hashed_string.startswith('0000000') and a_stringWithSevenZeros == False:
+		a_stringWithSevenZeros = True
 		print('Seven Zeros:')
 		print(a_string)
 		print(hashed_string)
-	if hashed_string.startswith('00000000') and a_stringWithEightZeros == 'false':
-		a_stringWithEightZeros = 'true'
+	if hashed_string.startswith('00000000') and a_stringWithEightZeros == False:
+		a_stringWithEightZeros = True
 		print('Eight Zeros:')
 		print(a_string)
 		print(hashed_string)
-	if hashed_string.startswith('000000000') and a_stringWithNineZeros == 'false':
-		a_stringWithNineZeros = 'true'
+	if hashed_string.startswith('000000000') and a_stringWithNineZeros == False:
+		a_stringWithNineZeros = True
 		print('Nine Zeros:')
 		print(a_string)
 		print(hashed_string)
-	if hashed_string.startswith('0000000000') and a_stringWithTenZeros == 'false':
-		a_stringWithTenZeros = 'true'
+	if hashed_string.startswith('0000000000') and a_stringWithTenZeros == False:
+		a_stringWithTenZeros = True
 		print('Ten Zeros:')
 		print(a_string)
 		print(hashed_string)
