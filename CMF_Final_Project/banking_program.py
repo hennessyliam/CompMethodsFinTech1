@@ -156,7 +156,6 @@ def get_deposit_input():
         return get_deposit_input()
 
 # Exception handling for menu input
-@classmethod
 def get_menu_input(menu_input):
     menu_dict = {
         "1": account_details,
