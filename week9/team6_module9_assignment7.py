@@ -6,25 +6,34 @@ class StockExchange():
         self.buy_orders = []
         self.sell_orders = []
 
-    def add_order(self, buy_or_sell, shares, price):
-        if buy_or_sell == 'buy':
-            heapq.heappush(self.buy_orders, (-price, shares))
-        else:
-            heapq.heappush(self.sell_orders, (price, shares))
+
+    # adds order to heap if order is a buy order or a sell order
+    def add_order(self, buy_or_sell, price, shares):
+        if buy_or_sell == "buy":
+            heapq.heappush(self.buy_orders, (shares, price))
+        elif buy_or_sell == "sell":
+            heapq.heappush(self.sell_orders, (shares, price))
         self.process_orders()
 
-
+    # processes orders by matching buy orders with sell orders
     def process_orders(self):
         while self.buy_orders and self.sell_orders:
-            buy_price, buy_shares = self.buy_orders[0]
-            sell_price, sell_shares = self.sell_orders[0]
-            if buy_price >= sell_price:
-                heapq.heappop(self.buy_orders)
-                heapq.heappop(self.sell_orders)
-                if buy_shares > sell_shares:
-                    heapq.heappush(self.buy_orders, (buy_price, buy_shares - sell_shares))
-                elif buy_shares < sell_shares:
-                    heapq.heappush(self.sell_orders, (sell_price, sell_shares - buy_shares))
+            buy_order = self.buy_orders[0]
+            sell_order = self.sell_orders[0]
+            if buy_order[0] >= sell_order[0]:
+                if buy_order[1] == sell_order[1]:
+                    heapq.heappop(self.buy_orders)
+                    heapq.heappop(self.sell_orders)
+                elif buy_order[1] > sell_order[1]:
+                    heapq.heappop(self.buy_orders)
+                    heapq.heappush(self.buy_orders, (buy_order[0], buy_order[1] - sell_order[1]))
+                    heapq.heappop(self.sell_orders)
+                    print("Processing order: Sell " + str(sell_order[1]) + " shares at $" + str(sell_order[0]) + " each")
+                else:
+                    heapq.heappop(self.sell_orders)
+                    heapq.heappush(self.sell_orders, (sell_order[0], sell_order[1] - buy_order[1]))
+                    heapq.heappop(self.buy_orders)
+                    print("Processing order: Buy " + str(buy_order[1]) + " shares at $" + str(buy_order[0]) + " each")
             else:
                 break
 
