@@ -6,7 +6,8 @@ import numpy as np
 import pandas as pd
 
 
-companies = ['3M', 'American Express', 'Amgen', 'Apple', 'Boeing', 'Caterpillar', 'Chevron', 'Cisco', 'Coca-Cola', 'Dow', 'Goldman Sachs', 'Home Depot', 'Honeywell', 'IBM', 'Intel', 'JPMorgan Chase', 'JohnsonJohnson', "McDonalds", 'Merck', 'Microsoft', 'Nike', 'Procter & Gamble', 'Salesforce', 'Travelers', 'UnitedHealth', 'Verizon', 'Visa', 'Walgreens Boots Alliance', 'Walmart', 'Walt Disney']
+#companies = ['3M Co', 'American Express Co', 'Amgen Inc', 'Apple Inc', 'Boeing Co', 'Caterpillar Inc', 'Chevron Corp', 'Cisco Systems Inc', 'Coca-Cola Co', 'Dow Inc', 'Goldman Sachs Group Inc', 'Home Depot Inc', 'Honeywell International Inc', 'Intel Corp', 'International Business Machines Corp', 'Johnson & Johnson', 'JPMorgan Chase & Co', "McDonald's Corp", 'Merck & Co Inc', 'Microsoft Corp', 'Nike Inc', 'Procter & Gamble Co', 'Salesforce Inc', 'Travelers Companies Inc', 'UnitedHealth Group Inc', 'Verizon Communications Inc', 'Visa Inc', 'Walgreens Boots Alliance Inc', 'Walmart Inc', 'Walt Disney Co']
+companies = {'3M Co': [], 'American Express Co': [], 'Amgen Inc': [], 'Apple Inc': [], 'Boeing Co': [], 'Caterpillar Inc': [], 'Chevron Corp': [], 'Cisco Systems Inc': [], 'Coca-Cola Co': [], 'Dow Inc': [], 'Goldman Sachs Group Inc': [], 'Home Depot Inc': [], 'Honeywell International Inc': [], 'Intel Corp': [], 'International Business Machines Corp': [], 'Johnson & Johnson': [], 'JPMorgan Chase & Co': [], "McDonald's Corp": [], 'Merck & Co Inc': [], 'Microsoft Corp': [], 'Nike Inc': [], 'Procter & Gamble Co': [], 'Salesforce Inc': [], 'Travelers Companies Inc': [], 'UnitedHealth Group Inc': [], 'Verizon Communications Inc': [], 'Visa Inc': [], 'Walgreens Boots Alliance Inc': [], 'Walmart Inc': [], 'Walt Disney Co': []}
 
 # count num of positive words in each article
 positive_count = 0
@@ -36,6 +37,7 @@ listpos = []
 listneg = []
 listscore = []
 
+
 def get_sentiment_score(positive_count: int, negative_count: int):
     count = 0
    
@@ -55,6 +57,7 @@ def get_sentiment_score(positive_count: int, negative_count: int):
         sentiment_score = (positive_count + negative_count)
         score_per_total_words = (positive_count - negative_count) / count
 
+        companies[company_name].append(sentiment_score)
         listx.append(company_name)
         listpos.append(positive_count)
         listneg.append(negative_count)
@@ -75,7 +78,6 @@ for company in companies:
 
 # define x axis as company names and y axis as positive and negative sentiment scores
 
-width = 0.35       # the width of the bars: can also be len(x) sequence
 
 fig, ax = plt.subplots()
 
@@ -87,8 +89,11 @@ ax.set_ylabel('Sentiment Score')
 ax.set_title('DOW 30 Companies Sentiment Score')
 ax.set_xticklabels(labels=listx,rotation=90)
 
+print(companies)
 
 plt.show()
+
+
 
 
 
