@@ -2,6 +2,7 @@
 # Import Module
 import sys
 import PySimpleGUI as sg
+from dart_backend import *
 
 
 # Check out/ select theme
@@ -25,6 +26,7 @@ class Account:
         self.password_list = ['1234', '4567', '7890']
 
 
+
     def display_info(self):
         print(self.username)
         print(self.first_name)
@@ -37,7 +39,7 @@ class Account:
 
 class State:
     account: Account
-
+    #UsAccount: UsUserAccount
 
     def __init__(self, go_to, set_account, go_home) -> None:
         self.go_to = go_to
@@ -64,6 +66,7 @@ class State:
         pass
 
 
+
 class LoginWindow(State):
 
  # Login Window
@@ -80,19 +83,23 @@ class LoginWindow(State):
         
 
         while True:
+
             event, values = login_window.read()
+
             if event == sg.WIN_CLOSED:
                 break
             if event == 'Login':
-                login_window.close()
+                login_window.hide()
                 self.go_home()
+                
             if event == 'Create Account':
-                login_window.close()
+                login_window.hide()
                 self.go_to(1)
 
     def on_enter(self):
          self.welcome_window()
          
+
 
 class AccountCreation(State):
    
@@ -106,78 +113,113 @@ class AccountCreation(State):
         [sg.Text('Email', size=(15, 1)), sg.InputText(key='email')],
         [sg.Text('Username', size=(15, 1)), sg.InputText(key='username')],
         [sg.Text('Password', size=(15, 1)), sg.InputText(key='password')],
-        [sg.Radio('Virtual', "CardType", default=True, size=(10, 1), k='-R1-'),
-            sg.Radio('Physical', "CardType", default=True, size=(10, 1))],
-        [sg.Button('Submit')]
+        [sg.Text('Card Type:'), sg.Radio('Virtual', "CardType", default=True, size=(10, 1), k='-R1-'),
+            sg.Radio('Physical', "CardType", default=False, size=(10, 1))],
+        [sg.Button('Create Account'), sg.Button('Back to Login')]
         ]
 
     account_creation_window = sg.Window('Account Creation', account_creation_layout)
     
-    
+    def create_account_US_user(self, values):
+        self.first_name = values['first_name']
+        self.last_name = values['last_name']
+        self.address = values['address']
+        self.ssn = values['tax_id']
+        self.phone_number = values['phone_number']
+        self.email = values['email']
+        self.username = values['username']
+        self.password = values['password']
+
+        new_account = UsUserAccount(self.first_name, self.last_name, self.address, self.ssn, self.phone_number, self.email, self.username, self.password)
+        print(new_account)
+        sg.popup_auto_close('Account created succesfully!', auto_close_duration=1.5)
+        self.go_home()
+        
+
     def new_account_creation(self):
 
         window = self.account_creation_window
-        
+
         while True:
             event, values = window.read() 
-            if event == sg.WIN_CLOSED:
+            if event ==  'Exit' or event == sg.WIN_CLOSED:
                 break
-            if event == 'Submit':
-                new_account = Account(
-                    username=values['username'],
-                    password=values['password'],
-                    first_name=values['first_name'],
-                    last_name=values['last_name'],
-                    address=values['address'],
-                    tax_id=values['tax_id'],
-                    phone_number=values['phone_number'],
-                    email=values['email'],
-                    balance=0,
-                    card_type=values['-R1-']
-                )
+            if event == 'Create Account':
 
-                window.close()
-                self.go_home()
-                return new_account
+                window.hide()
+                self.create_account_US_user(values)
+                
+            if event == 'Back to Login':
+                window.hide()
+                self.go_to(000)
+
         window.close()
-        
-
 
     def on_enter(self):
-
-        new_account = self.new_account_creation()
-        self.set_account(new_account)
+        self.new_account_creation()
+                                       
 
 
 class TransactionMenu(State):
      
     transaction_layout = [
-        [sg.Text('Who would you like transact with?'), sg.Combo(values=('Liam', 'Zachary', 'Nicholas', 'Anna'))],
-        [sg.Radio('Send', "TransactionType", default=True, size=(10, 1), k='-R1-'),
-        sg.Radio('Request', "TransactionType", default=True, size=(10, 1))],
-        [sg.Text('How Much', size=(15, 1)), sg.InputText(key='-INPUT-')],
-        [sg.Radio('USD-CAD', "ExchangeType", default=True, size=(10, 1), k='-R1-'),
-        sg.Radio('CAD-USD', "ExchangeType", default=True, size=(10, 1))],
+        [sg.Text('Who would you like transact with?')], 
+        [sg.Text("Recipient's First Name:", size=(20, 1)), sg.InputText(key='-RECIPIENT-FIRST-NAME-')],
+        [sg.Text("Recipient's Last Name:", size=(20, 1)), sg.InputText(key='-RECIPIENT-LAST-NAME-')],
+        [sg.Text("Recipient's Transfer Code:", size=(20, 1)), sg.InputText(key='-RECIPIENT-TRANSFER-CODE-')],
+        [sg.Radio('Send', "TransactionType", default=True, size=(10, 1), key='-SEND-'),
+        sg.Radio('Request', "TransactionType", default=False, size=(10, 1), key='-RECEIVE-')],
+        [sg.Radio('Balance', 'Type', default=True, key='-BALANCE-'), sg.Radio('Card', 'Type', default=False, key='-CARD-'), sg.Radio('Crypto', 'Type', default=False, key='-CRYPTO-')],
+        [sg.Text('How Much', size=(15, 1)), sg.InputText(key='-AMOUNT-')],
+        [sg.Radio('USD-CAD', "ExchangeType", default=True, size=(12, 1), k='-USD-'),
+        sg.Radio('CAD-USD', "ExchangeType", default=False, size=(12, 1), k='-CAD-')],
         [sg.Button('Approve'), sg.Button('Cancel')]
     ]
 
     transaction_window = sg.Window('Transact', transaction_layout)
+    
 
     def transaction_screen(self):
+        clear_inputs = ''
 
         window = self.transaction_window
+
+        if window._Hidden == True:
+            # clears inputs
+            window['-RECIPIENT-FIRST-NAME-'].update(clear_inputs)
+            window['-RECIPIENT-LAST-NAME-'].update(clear_inputs)
+            window['-RECIPIENT-TRANSFER-CODE-'].update(clear_inputs)
+            window['-AMOUNT-'].update(clear_inputs)
+            window['-SEND-'].update(True)
+            window['-BALANCE-'].update(True)
+            window['-USD-'].update(True)
+
+            window.un_hide()
 
         while True:
             event, values = window.read()
             if event == sg.WIN_CLOSED:
                 break
             if event == 'Approve':
-                window.close()
+
+                recipient_first_name = values['-RECIPIENT-FIRST-NAME-']
+                recipient_last_name = values['-RECIPIENT-LAST-NAME-']
+                recipient_transfer_code = values['-RECIPIENT-TRANSFER-CODE-']
+                amount = values['-AMOUNT-']
+                transaction_type = values['-SEND-']
+                holder = 0
+            
+            
+                UsUserAccount.send_funds(holder, recipient_first_name, recipient_last_name, recipient_transfer_code, amount, transaction_type)
+
+
+                window.hide()
                 self.go_to(3)
                 break
+
             if event == 'Cancel':
+                window.hide()
                 self.go_home()
-                window.close()
 
         #window.close()
 
@@ -185,31 +227,35 @@ class TransactionMenu(State):
         self.transaction_screen()
 
 
-        
-
 class TradeConfirmation(State):
+
     confirmation_layout = [
-            [sg.Text('Congratulations, your transaction has been completed.')],
-            [sg.Text('Orginal Balance:')],
-            [sg.Text('Curent Balance:')],
-            [sg.Button('Perform Another'), sg.Button('Home')]
+            # [sg.Text('Congratulations, your transaction has been completed.')],
+            # [sg.Text('Original Balance:'), sg.Output(.balance)],
+            # [sg.Text('Curent Balance:')],
+            # [sg.Button('Perform Another'), sg.Button('Home')]
         ]
     confirmation_window = sg.Window('Transaction Detail', confirmation_layout)
 
+
     def confirmation_screen(self):
+
         window = self.confirmation_window
-        
+
+        if window._Hidden == True:
+            window.refresh()
+            window.un_hide()
 
         while True:
             event, values = window.read()
             if event == sg.WIN_CLOSED:
                 break
             if event == 'Perform Another':
-                window.close()
+                window.hide()
                 self.go_to(2)
             if event == 'Home':
+                window.hide()
                 self.go_home()
-                window.close()
 
 
     def on_enter(self):
@@ -218,62 +264,174 @@ class TradeConfirmation(State):
 
 
 class AccountDetails(State):
-    
 
-    account_details_layout = [
-        [sg.Text('Account Details')],
-        [sg.Text(str("self.account.display_info()"))],
-        [sg.Button('Home')]
-        ]
+    def display_account_details(self, new_account):
 
-    account_details_window = sg.Window('Account Details', account_details_layout)
+        account_details_layout = [
+            [sg.Text(f'Username: {self.new_account.username}')],
+            [sg.Text(f'First name: {new_account.first_name}')],
+            [sg.Text(f'Last name: {new_account.last_name}')],
+            [sg.Text(f'Email: {new_account.email}')],
+            [sg.Text(f'Address: {new_account.address}')],
+            [sg.Text(f'Phone number: {new_account.phone_number}')],
+            [sg.Button('Home')]
+            ]
 
-    
-    def account_details_screen(self):
-        window = self.account_details_window
 
-        # show account details and when home button is pressed go to home screen
+        window = sg.Window('Account Details', account_details_layout)
+        
+        if window._Hidden == True:
+            window.un_hide()
+
         while True:
             event, values = window.read()
             if event == sg.WIN_CLOSED:
                 break
             if event == 'Home':
-                window.close()
+                window.hide()
                 self.go_home()
 
 
     def on_enter(self):
-        self.account_details_screen()
+        self.display_account_details(new_account=UsUserAccount)
+
+
+
+class DepositFundScreen(State):
+
+    deposit_fund_layout = [
+        [sg.Text('Deposit Funds')],
+        [sg.Text('Card Number:', size=(15, 1)), sg.InputText(key='-CARD#-')],
+        [sg.Text('Expiration Date:', size=(15, 1)), sg.InputText(key='-EXP-')],
+        [sg.Text('CVV:', size=(15, 1)), sg.InputText(key='-CVV-')],
+        [sg.Radio('USD-CAD', "ExchangeType", default=True, size=(10, 1), k='-USD-'),
+        sg.Radio('CAD-USD', "ExchangeType", default=False, size=(10, 1), k='-CAD-')],
+        [sg.Button('Approve'), sg.Button('Cancel')]
+    ]
+
+    save_card_popup_layout = [
+        [sg.Text('Would you like to save this card?')],
+        [sg.Button('Yes'), sg.Button('No')]
+    ]
+
+    deposit_fund_window = sg.Window('Deposit Funds', deposit_fund_layout)
+
+    save_card_popup_window = sg.Window('Save Card?', save_card_popup_layout)
+
+    def deposit_fund_screen(self):
+
+        window = self.deposit_fund_window
+
+        if window._Hidden == True:
+            window.un_hide()
+
+        while True:
+            event, values = window.read()
+            if event == sg.WIN_CLOSED:
+                break
+            if event == 'Approve':
+                sg.popup_auto_close('Your deposit has been approved and is being received.', auto_close_duration=3)
+                
+                def save_card_popup():
+                    while True:
+                        event, values = self.save_card_popup_window.read()
+                        if event == sg.WIN_CLOSED:
+                            break
+                        if event == 'Yes':
+                            self.save_card_popup_window.close()
+                            break
+                        if event == 'No':
+                            self.save_card_popup_window.close()
+                            break
+
+                save_card_popup()
+                window.hide()
+                self.go_home()
+                break
+            if event == 'Cancel':
+                window.hide()
+                self.go_home()
+
+    def on_enter(self):
+        self.deposit_fund_screen()
+
+
+class LinkCryptoWallet(State):
+    
+        link_crypto_wallet_layout = [
+            [sg.Text('Link Crypto Wallet')],
+            [sg.Text('Wallet Address:', size=(15, 1)), sg.InputText(key='-WALLET-')],
+            [sg.Text('Wallet Type:', size=(15, 1)), sg.InputText(key='-WALLET-TYPE-')],
+            [sg.Button('Approve'), sg.Button('Cancel')]
+        ]
+    
+        link_crypto_wallet_window = sg.Window('Link Crypto Wallet', link_crypto_wallet_layout)
+    
+        def link_crypto_wallet_screen(self):
+    
+            window = self.link_crypto_wallet_window
+    
+            if window._Hidden == True:
+                window.un_hide()
+    
+            while True:
+                event, values = window.read()
+                if event == sg.WIN_CLOSED:
+                    break
+                if event == 'Approve':
+                    sg.popup_auto_close('Your wallet has been linked.', auto_close_duration=2)
+                    window.hide()
+                    self.go_home()
+
+                if event == 'Cancel':
+                    window.hide()
+                    self.go_home()
+    
+        def on_enter(self):
+            self.link_crypto_wallet_screen()
         
 
 
 class Home(State):
 
     home_layout = [
-        [sg.Text('Welcome to Dart')],
-        [sg.Button('Transact'), sg.Button('Account Details'), sg.Button('Logout')],
+        # Text Welcome to Dart in large font
+        [sg.Text('Welcome to Dart', font=('Helvetica, 25'))],
+        [sg.Button('Transact', font=('Helvetica, 15')), sg.Button('Account Details', font=('Helvetica, 15'))],
+        [sg.Button('Deposit Funds', font=('Helvetica, 15')), sg.Button('Link Crypto Wallet', font=('Helvetica, 15'))],
+        [sg.Button('Logout', font=('Helvetica, 15'))],
         [sg.Text('Available FX Rate:')], 
-        [sg.Text('1.00 USD = 1.25 CAD')]
+        [sg.Text('1.00 USD = 1.33 CAD')]
         
     ]
         
     home_window = sg.Window('Home Screen', home_layout)
 
     def on_enter(self):
+
+        if self.home_window._Hidden == True:
+            self.home_window.refresh()
+            self.home_window.un_hide()
         
         while True:
             event, values = self.home_window.read()
             if event == sg.WIN_CLOSED:
-                break
+                sys.exit()
             if event == 'Transact':
-                self.home_window.close()
+                self.home_window.hide()
                 self.go_to(2)
             if event == 'Account Details':
-                self.home_window.close()
+                self.home_window.hide()
                 self.go_to(4)
             if event == 'Logout':
-                self.home_window.close()
+                self.home_window.hide()
                 self.go_to(5)
+            if event == 'Deposit Funds':
+                self.home_window.hide()
+                self.go_to(6)
+            if event == 'Link Crypto Wallet':
+                self.home_window.hide()
+                self.go_to(7)
                 
 
 class Exit(State):
@@ -287,7 +445,7 @@ class Exit(State):
 
 
     def on_enter(self):
-        # open window then close it after two seconds
+
 
         window = self.exit_window
 
@@ -310,6 +468,8 @@ class App:
         3: TradeConfirmation,
         4: AccountDetails,
         5: Exit,
+        6: DepositFundScreen,
+        7: LinkCryptoWallet,
         99: Home
     }
 
@@ -333,8 +493,8 @@ class App:
         self.account = account
 
     def __init__(self) -> None:
-        self.set_state(2)
+        self.set_state(000)
 
 
 app = App()
-
+window.close()

@@ -209,7 +209,7 @@ class Home(State):
 		else:
 			self.go_to(8)
 
-# the CreteAccount subclass of State, is responsible for creating a new account
+# the CreateAccount subclass of State, is responsible for creating a new account
 class CreateAccount(State):
 	title = "Create an Account"
 
